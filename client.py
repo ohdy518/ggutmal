@@ -1,4 +1,5 @@
 import pandas as pd
+import agents
 
 DATA_FILE_LOCATION = "./data/prod/prod.csv"
 WORDS_COL_NAME = '어휘'
@@ -7,6 +8,8 @@ WORDS_COL_NAME = '어휘'
 reject_input = False
 game_running = False
 alpha_playing = True # First player is named alpha.
+
+agent = agents.random_word_selection
 
 # Word status
 last_syllable = "*"
@@ -65,7 +68,7 @@ def process_word(word: str):
     global reject_input, game_running
     if not word_is_valid(word): reject_input = True; return
 
-    print('->')
+    print(f'-> {word}')
 
     if is_dead_end(word):
         print("dead end! game over")
@@ -77,7 +80,11 @@ def process_word(word: str):
 def input_manager():
     global alpha_playing, reject_input
     while game_running:
-        # print(alpha_playing)
+        if not alpha_playing:
+            process_word(agent(df, last_syllable))
+            alpha_playing = not alpha_playing
+            continue
+
         while True:
             reject_input = False
             user_input = input(f"Player {'alpha' if alpha_playing else 'beta'} -- Enter word: ")
