@@ -86,7 +86,7 @@ def process_word(word: str):
     if is_dead_end(word):
         print("dead end! game over")
         game_running = False
-        agent_word = ""
+        # agent_word = ""
         return
 
     drop_word(word)
