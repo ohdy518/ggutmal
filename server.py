@@ -34,6 +34,6 @@ async def submit_word(data: WordData):
     print(sdf.last_syllable)
     if sdf.reject_input:
         return {"status": "rejected", "newWord": "", "gameOver": False}
-    return {"status": "accepted", "newWord": "새벽녘", "gameOver": not sdf.game_running}
+    return {"status": "accepted", "newWord": sdf.agent_word, "gameOver": not sdf.game_running}
     # {"status": "rejected", ...}
     # {"status": "accepted", "newWord": "새벽녘", "gameOver": true}
