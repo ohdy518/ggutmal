@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 import server_data_functions as sdf
+import server_auxiliary_functions as saf
+
 from client import game_running
 
 
@@ -37,3 +39,8 @@ async def submit_word(data: WordData):
     return {"status": "accepted", "newWord": sdf.agent_word, "gameOver": not sdf.game_running}
     # {"status": "rejected", ...}
     # {"status": "accepted", "newWord": "새벽녘", "gameOver": true}
+
+@app.post("/api/define", status_code=200)
+async def get_definition(data: WordData):
+    print("this")
+    return {"definition": saf.define(data.word)}
