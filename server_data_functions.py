@@ -3,7 +3,7 @@ import agents
 
 DATA_FILE_LOCATION = "./data/prod/prod.csv"
 WORDS_COL_NAME = '어휘'
-AGENT = agents.random_word_selection
+AGENT = agents.dead_end_else_random
 
 # Foundational game status
 reject_input = False
