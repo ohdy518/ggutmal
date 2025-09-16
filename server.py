@@ -15,12 +15,15 @@ class WordData(BaseModel):
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
+user_wins = False
 @app.get("/api/health")
 async def health():
     return {"status": "ok"}
 
 @app.get("/api/reset")
 async def reset():
+    global user_wins
+    user_wins = False
     sdf.initialize()
     return {"status": "ok"}
 
@@ -28,15 +31,20 @@ async def reset():
 async def submit_options():
     return {"message": "OK"}
 
-
 @app.post("/api/submit", status_code=200)
 async def submit_word(data: WordData):
+    global user_wins
+    if not sdf.game_running:
+        return {"status": "rejected", "newWord": "", "definition": "", "gameOver": True, "userWins": user_wins}
     print(f"Received word: {data.word}")
+    if sdf.word_is_valid(data.word) and sdf.is_dead_end(data.word):
+        user_wins = True
+        return {"status": "accepted", "newWord": "", "definition": "", "gameOver": True, "userWins": user_wins}
     sdf.process_word(data.word)
     print(sdf.last_syllable)
     if sdf.reject_input:
         return {"status": "rejected", "newWord": "", "gameOver": False}
-    return {"status": "accepted", "newWord": sdf.agent_word, "gameOver": not sdf.game_running}
+    return {"status": "accepted", "newWord": sdf.agent_word, "definition": saf.define(sdf.agent_word), "gameOver": not sdf.game_running, "userWins": user_wins}
     # {"status": "rejected", ...}
     # {"status": "accepted", "newWord": "새벽녘", "gameOver": true}
 
