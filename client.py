@@ -7,7 +7,7 @@ WORDS_COL_NAME = '어휘'
 # Foundational game status
 reject_input = False
 game_running = False
-alpha_playing = True # First player is named alpha.
+player_playing = True # First player is named alpha.
 
 agent = agents.random_word_selection
 
@@ -78,7 +78,7 @@ def process_word(word: str):
     calculate_dead_ends()
 
 def input_manager():
-    global alpha_playing, reject_input
+    global player_playing, reject_input
     while game_running:
         if not alpha_playing:
             process_word(agent(df, last_syllable))

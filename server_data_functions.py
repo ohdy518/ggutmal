@@ -3,12 +3,14 @@ import agents
 
 DATA_FILE_LOCATION = "./data/prod/prod.csv"
 WORDS_COL_NAME = '어휘'
-AGENT = agents.dead_end_else_random
+AGENT = agents.dead_end_else_no_worst
 
 # Foundational game status
 reject_input = False
 game_running = False
-alpha_playing = True # First player is named alpha.
+player_playing = True # First player is named alpha.
+
+user_wins = False
 
 # Word status
 last_syllable = "*"
@@ -31,6 +33,7 @@ def set_last_syllable(word: str):
 
 def word_starts_with_last_syllable(word: str) -> bool:
     global last_syllable
+    print(last_syllable)
     if last_syllable == "*":
         set_last_syllable(word)
         return True
@@ -45,8 +48,8 @@ def is_dead_end(word: str):
     return False
 
 def word_is_valid(word: str) -> bool:
-    if not word_in_dictionary(word): return False
-    if not word_starts_with_last_syllable(word): return False
+    if not word_in_dictionary(word): print("a"); return False
+    if not word_starts_with_last_syllable(word): print("b"); return False
 
     return True
 
@@ -59,9 +62,9 @@ def calculate_dead_ends():
     dead_ends = all_syllables - set(df['sw'])
 
 def initialize():
-    global game_running, reject_input, alpha_playing, last_syllable, dead_ends, df, valid_words
+    global game_running, reject_input, player_playing, last_syllable, dead_ends, df, valid_words
     reject_input = False
-    alpha_playing = True  # First player is named alpha.
+    player_playing = True  # First player is named alpha.
 
     # Word status
     last_syllable = "*"
@@ -77,41 +80,47 @@ def initialize():
     # input_manager()
 
 def process_word(word: str):
-    global reject_input, game_running, alpha_playing, agent_word
+    print("pw")
+    global reject_input, game_running, player_playing, agent_word, user_wins
     reject_input = False
-    if not word_is_valid(word): reject_input = True; return
+
+    if not word_is_valid(word): print(f">{word}<"); reject_input = True; return
 
     print(f'-> {word}')
 
     if is_dead_end(word):
         print("dead end! game over")
         game_running = False
-        # agent_word = ""
+        if player_playing:
+            user_wins = True
+        else:
+            user_wins = False
         return
 
     drop_word(word)
     calculate_dead_ends()
 
-    alpha_playing = not alpha_playing
+    player_playing = not player_playing
 
-    if not alpha_playing:
+    if not player_playing:
         agent_word = AGENT(df, last_syllable)
         process_word(agent_word)
 
 def input_manager():
-    global alpha_playing, reject_input
+    global player_playing, reject_input
     while game_running:
         # print(alpha_playing)
         while True:
             reject_input = False
-            user_input = input(f"Player {'alpha' if alpha_playing else 'beta'} -- Enter word: ")
+            user_input = input(f"Player {'alpha' if player_playing else 'beta'} -- Enter word: ")
             process_word(user_input)
 
             # Input rejection mechanism
             if not reject_input: break
             print("Input rejected.")
         # print("next!")
-        alpha_playing = not alpha_playing
+        player_playing = not player_playing
 
 if __name__ == "__main__":
     initialize()
+    print(process_word("기쁨"))
